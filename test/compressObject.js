@@ -56,4 +56,45 @@ QUnit.module("Тестируем функцию compressObject", function() {
 
         assert.deepEqual(original, { a: 1, b: null, c: "test" }, "Исходный объект не должен мутировать.");
     });
+
+    QUnit.test("Игнорирует унаследованные свойства", function(assert) {
+        const proto = { inherited: 'oops' };
+        const obj = Object.create(proto);
+        obj.own = 1;
+
+        const result = compressObject(obj);
+
+        assert.deepEqual(result, { own: 1 }, "Унаследованные свойства не должны попадать в результат.");
+    });
+
+    QUnit.test("Копирование поверхностное: вложенные объекты остаются общими с исходным", function(assert) {
+        const original = { user: { name: 'Alice' }, empty: '' };
+        const result = compressObject(original);
+        result.user.name = 'Bob';
+
+        assert.strictEqual(original.user.name, 'Bob', "Вложенный объект должен быть общим.");
+    });
+
+    QUnit.test("Бросает TypeError на невалидные входные данные", function(assert) {
+        assert.throws(() => compressObject(null), TypeError, "null должен бросать ошибку.");
+        assert.throws(() => compressObject(undefined), TypeError, "undefined должен бросать ошибку.");
+        assert.throws(() => compressObject('abc'), TypeError, "Строка должна бросать ошибку.");
+        assert.throws(() => compressObject(42), TypeError, "Число должно бросать ошибку.");
+        assert.throws(() => compressObject([1, 2, 3]), TypeError, "Массив должен бросать ошибку.");
+        assert.throws(() => compressObject(true), TypeError, "Boolean должен бросать ошибку.");
+    });
+
+    QUnit.test("Сохраняет вложенный объект как есть", function(assert) {
+        const result = compressObject({
+            a: 1,
+            nested: { x: null, y: 'test' },
+            empty: ''
+        });
+
+        assert.deepEqual(
+            result,
+            { a: 1, nested: { x: null, y: 'test' } },
+            "Вложенный объект должен сохраниться без изменений."
+        );
+    });
 });
