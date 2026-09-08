@@ -114,7 +114,13 @@ QUnit.module("Тестируем функцию compressObject", function() {
     });
 
     QUnit.test("Бросает TypeError на экземпляры пользовательских классов", function(assert) {
+        /**
+         * Тестовый класс для проверки, что экземпляры классов не считаются простыми объектами.
+         */
         class User {
+            /**
+             * Создаёт экземпляр User.
+             */
             constructor() {
                 this.name = 'Alice';
             }
