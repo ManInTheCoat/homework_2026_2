@@ -1,12 +1,22 @@
 'use strict';
 
 /**
+ * Проверяет, является ли значение "пустым" в рамках компрессии объекта:
+ * null, undefined и пустая строка.
+ * @param {*} value - проверяемое значение
+ * @returns {Boolean}
+ */
+const isEmpty = (value) => value === null || value === undefined || value === '';
+
+/**
  * Функция, создающая новый объект без ключей со значениями null, undefined или пустой строкой.
  * Копирование поверхностное, то есть вложенные объекты и массивы копируются по ссылке, а не клонируются полностью.
  * Изменение вложенного объекта результата повлияет на вложенный объект входного объекта.
+ * Функция работает только с простыми объектами. Экземпляры Date, Map и другие
+ * встроенные или пользовательские классы не поддерживаются и выдают ошибку.
  * @param {Object} obj - исходный объект
  *
- * @throws {TypeError} если передан не объект
+ * @throws {TypeError} если передан не объект или не простой объект (Date, Map и др.)
  *
  * @example
  * // returns { a: 3, c: 'javascript' }
@@ -15,11 +25,11 @@
  * @returns {Object}
  */
 const compressObject = (obj) => {
-    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-        throw new TypeError('compressObject: ожидается объект');
+    if (Object.prototype.toString.call(obj) !== '[object Object]') {
+        throw new TypeError('compressObject: ожидается обычный объект');
     }
 
     return Object.fromEntries(
-        Object.entries(obj).filter(([, value]) => value !== null && value !== undefined && value !== '')
+        Object.entries(obj).filter(([, value]) => !isEmpty(value))
     );
 };

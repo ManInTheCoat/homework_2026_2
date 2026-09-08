@@ -76,12 +76,12 @@ QUnit.module("Тестируем функцию compressObject", function() {
     });
 
     QUnit.test("Бросает TypeError на невалидные входные данные", function(assert) {
-        assert.throws(() => compressObject(null), TypeError, "null должен бросать ошибку.");
-        assert.throws(() => compressObject(undefined), TypeError, "undefined должен бросать ошибку.");
-        assert.throws(() => compressObject('abc'), TypeError, "Строка должна бросать ошибку.");
-        assert.throws(() => compressObject(42), TypeError, "Число должно бросать ошибку.");
-        assert.throws(() => compressObject([1, 2, 3]), TypeError, "Массив должен бросать ошибку.");
-        assert.throws(() => compressObject(true), TypeError, "Boolean должен бросать ошибку.");
+        assert.throws(() => compressObject(null), /compressObject: ожидается обычный объект/, "null должен бросать ошибку.");
+        assert.throws(() => compressObject(undefined), /compressObject: ожидается обычный объект/, "undefined должен бросать ошибку.");
+        assert.throws(() => compressObject('abc'), /compressObject: ожидается обычный объект/, "Строка должна бросать ошибку.");
+        assert.throws(() => compressObject(42), /compressObject: ожидается обычный объект/, "Число должно бросать ошибку.");
+        assert.throws(() => compressObject([1, 2, 3]), /compressObject: ожидается обычный объект/, "Массив должен бросать ошибку.");
+        assert.throws(() => compressObject(true), /compressObject: ожидается обычный объект/, "Boolean должен бросать ошибку.");
     });
 
     QUnit.test("Сохраняет вложенный объект как есть", function(assert) {
@@ -96,5 +96,20 @@ QUnit.module("Тестируем функцию compressObject", function() {
             { a: 1, nested: { x: null, y: 'test' } },
             "Вложенный объект должен сохраниться без изменений."
         );
+    });
+
+    QUnit.test("Бросает TypeError на непростые объекты (Date, Map и т.д.)", function(assert) {
+        assert.throws(() => compressObject(new Date()), TypeError, "Date должен бросать ошибку.");
+        assert.throws(() => compressObject(new Map([['a', 1]])), TypeError, "Map должен бросать ошибку.");
+    });
+
+    QUnit.test("Работает с объектом без прототипа", function(assert) {
+        const obj = Object.create(null);
+        obj.a = 1;
+        obj.b = null;
+
+        const result = compressObject(obj);
+
+        assert.deepEqual(result, { a: 1 }, "Object.create(null) должен обрабатываться как простой объект.");
     });
 });
