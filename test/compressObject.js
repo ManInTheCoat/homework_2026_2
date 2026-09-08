@@ -112,4 +112,14 @@ QUnit.module("Тестируем функцию compressObject", function() {
 
         assert.deepEqual(result, { a: 1 }, "Object.create(null) должен обрабатываться как простой объект.");
     });
+
+    QUnit.test("Бросает TypeError на экземпляры пользовательских классов", function(assert) {
+        class User {
+            constructor() {
+                this.name = 'Alice';
+            }
+        }
+
+        assert.throws(() => compressObject(new User()), /compressObject: ожидается обычный объект/, "Экземпляр класса должен бросать ошибку.");
+    });
 });

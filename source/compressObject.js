@@ -25,7 +25,11 @@ const isEmpty = (value) => value === null || value === undefined || value === ''
  * @returns {Object}
  */
 const compressObject = (obj) => {
-    if (Object.prototype.toString.call(obj) !== '[object Object]') {
+    const isPlainObject =
+        Object.prototype.toString.call(obj) === '[object Object]' &&
+        (Object.getPrototypeOf(obj) === null || Object.getPrototypeOf(obj).constructor === Object);
+
+    if (!isPlainObject) {
         throw new TypeError('compressObject: ожидается обычный объект');
     }
 
